@@ -1,0 +1,36 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package decisiontrees.models;
+
+import java.util.Map;
+
+/**
+ *
+ * @author Tamer
+ */
+public class TestDataSet extends DataSet {
+
+    public float assessingQualityOfTree(SingleCharacteristicTree tree) {
+        float correctAnswers = 0;
+        float wrongAnswers = 0;
+
+        for (Row r : this.getRows()) {
+            Integer rightValue = r.getTargetValue();
+            for (Map.Entry<Characteristic, Value> el : r.getValuesMap().entrySet()) {
+                if (el.getKey().equals(tree.getProfile())) {
+                    Integer treeValue = tree.getTargetValue(el.getValue());
+                    if (rightValue == treeValue) {
+                        correctAnswers++;
+                    } else {
+                        wrongAnswers++;
+                    }
+                }
+            }
+        }
+        float propotion = ((float) (correctAnswers / (correctAnswers + wrongAnswers))) * 100;
+        return propotion;
+    }
+}
