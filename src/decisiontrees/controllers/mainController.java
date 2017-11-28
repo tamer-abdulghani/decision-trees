@@ -38,7 +38,14 @@ public class mainController {
     }
 
     public void loadTrainDataSet() {
-        this.trainingModel = this.database.extractTrainingData(null);
+        ArrayList<String> charalist = new ArrayList<String>();
+        charalist.add("Parch");
+        charalist.add("Pclass");
+        charalist.add("Sex");
+        charalist.add("SibSp");
+        charalist.add("Embarked");
+
+        this.trainingModel = this.database.extractTrainingData(charalist);
         this.frame.displayTrainingCharasCategoricalOnly(this.trainingModel);
     }
 
@@ -53,7 +60,14 @@ public class mainController {
     }
 
     public void loadTestDataSet() {
-        this.testModel = this.database.extractTestingData(null);
+        ArrayList<String> charalist = new ArrayList<String>();
+        charalist.add("Parch");
+        charalist.add("Pclass");
+        charalist.add("Sex");
+        charalist.add("SibSp");
+        charalist.add("Embarked");
+
+        this.testModel = this.database.extractTestingData(charalist);
         this.frame.displayTestModel(this.testModel);
     }
 

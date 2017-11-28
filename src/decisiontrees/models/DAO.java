@@ -119,7 +119,8 @@ public class DAO {
                 /*
                 loading specific charateristic from the charasList parameter.
                  */
-                sql += " AND nameChar in (" + String.join(",", charasList) + ")";
+                sql += " AND nameChar in ('" + String.join("','", charasList) + "','Survived')";
+                System.out.println("" + sql);
             }
 
             Statement stmt = conn.createStatement();

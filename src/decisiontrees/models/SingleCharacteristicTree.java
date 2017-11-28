@@ -116,7 +116,7 @@ public class SingleCharacteristicTree {
             return this.getProfileTargetMap().get(value);
         }
 
-        // This means that the value from Testing Dataset not exists in our decision tree, then return random guess.
+        // This means that the value from Testing Dataset not exists in our decision tree, then return random guess from possible target values (Survived: 1 or 0)
         return this.getTarget().getPossibleValues().get(new Random().nextInt(1) + 1);
     }
 
