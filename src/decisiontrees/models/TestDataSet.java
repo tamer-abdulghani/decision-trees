@@ -18,11 +18,11 @@ public class TestDataSet extends DataSet {
         float wrongAnswers = 0;
 
         for (Row r : this.getRows()) {
-            Integer rightValue = r.getTargetValue();
+            Value actualValue = r.getTargetValue();
             for (Map.Entry<Characteristic, Value> el : r.getValuesMap().entrySet()) {
                 if (el.getKey().equals(tree.getProfile())) {
-                    Integer treeValue = tree.getTargetValue(el.getValue());
-                    if (rightValue == treeValue) {
+                    Value predictedValue = tree.getTargetValue(el.getValue());
+                    if (predictedValue.equals(actualValue)) {
                         correctAnswers++;
                     } else {
                         wrongAnswers++;

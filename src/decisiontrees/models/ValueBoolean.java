@@ -14,7 +14,7 @@ public class ValueBoolean extends Value {
     private boolean value;
 
     public ValueBoolean(String value) {
-        this.value = Boolean.parseBoolean(value);
+        this.value = Integer.parseInt(value) == 1;
     }
 
     /**
@@ -59,6 +59,5 @@ public class ValueBoolean extends Value {
         }
         return true;
     }
-    
-    
+
 }

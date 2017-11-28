@@ -70,19 +70,15 @@ public class Row {
         }
     }
 
-    public Integer getTargetValue() {
+    public Value getTargetValue() {
         for (Map.Entry<Characteristic, Value> entry : valuesMap.entrySet()) {
             Characteristic key = entry.getKey();
             Value value = entry.getValue();
             if (key.getName().toLowerCase().equals("survived")) {
-                if (((ValueBoolean) value).getValue()) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+                return value;
             }
         }
-        return 0;
+        return null;
     }
 
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class SingleCharacteristicTree {
 
     private Characteristic profile;
     private Characteristic target;
-    private HashMap<Value, Integer> profileTargetMap;
+    private HashMap<Value, Value> profileTargetMap;
 
     /**
      * This constructor will build a decision tree related to only one
@@ -41,6 +42,8 @@ public class SingleCharacteristicTree {
         this.target = target;
         this.profileTargetMap = new HashMap<>();
 
+        HashMap<Value, HashMap<Value, Integer>> list = new HashMap<>();
+
         ArrayList<ValuePair> pairsList = new ArrayList<>();
         for (Row r : values) {
             Value profileValue = r.getValuesMap().get(profile);
@@ -54,33 +57,43 @@ public class SingleCharacteristicTree {
          */
         List<Value> uniqueProfileValues = pairsList.stream().map(x -> x.getSource()).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
 
-        int max = 0;
-        Value survivedClass = null;
-        Value targetClass = null;
-
         /**
-         * for each profile value, get the count of survived = 1
+         * for each profile value (pclass 1, 2, or 3), get the count of people
+         * survived or died (1 or 0)
          */
         for (Value a : uniqueProfileValues) {
-            int count = 0;
+            HashMap<Value, Integer> targetCountList = new HashMap<>();
             for (ValuePair el : pairsList) {
                 if (el.getSource().equals(a)) {
-                    count++;
+                    if (targetCountList.containsKey(el.target)) {
+                        targetCountList.replace(el.target, targetCountList.get(el.target) + 1);
+                    } else {
+                        targetCountList.put(el.target, 1);
+                    }
                 }
             }
-            System.out.println("" + a.toString() + ":" + count);
-            if (count > max) {
-                max = count;
-                survivedClass = a;
+
+            /*
+            for (Map.Entry<Value, Integer> el : targetCountList.entrySet()) {
+                System.out.println("" + a + "->" + el.getKey() + ":" + el.getValue());
             }
+             */
+            list.put(a, targetCountList);
         }
 
-        for (Value a : uniqueProfileValues) {
-            if (a == survivedClass) {
-                this.profileTargetMap.put(a, 1);
-            } else {
-                this.profileTargetMap.put(a, 0);
-            }
+        for (Map.Entry<Value, HashMap<Value, Integer>> ele : list.entrySet()) {
+
+            this.profileTargetMap.put(
+                    ele.getKey(),
+                    ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getKey()
+            );
+
+            // Means from the list that we build (profile , (target,count) ), give me the maximum value correspnd to specific target
+            // System.out.println(ele.getKey() + ":" + ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getValue());
+        }
+
+        for (Map.Entry<Value, Value> a : this.profileTargetMap.entrySet()) {
+            System.out.println(a.getKey() + " -> " + a.getValue());
         }
 
     }
@@ -91,31 +104,33 @@ public class SingleCharacteristicTree {
         result += this.profile.toString() + "\t";
         result += this.target.toString() + "\n";
 
-        for (Map.Entry<Value, Integer> el : this.getProfileTargetMap().entrySet()) {
+        for (Map.Entry<Value, Value> el : this.getProfileTargetMap().entrySet()) {
             result += el.getKey().toString() + "\t" + el.getValue().toString() + "\n";
         }
         return result;
 
     }
 
-    public Integer getTargetValue(Value value) {
+    public Value getTargetValue(Value value) {
         if (this.getProfileTargetMap().containsKey(value)) {
             return this.getProfileTargetMap().get(value);
         }
-        return null;
+
+        // This means that the value from Testing Dataset not exists in our decision tree, then return random guess.
+        return this.getTarget().getPossibleValues().get(new Random().nextInt(1) + 1);
     }
 
     /**
      * @return the profileTargetMap
      */
-    public HashMap<Value, Integer> getProfileTargetMap() {
+    public HashMap<Value, Value> getProfileTargetMap() {
         return profileTargetMap;
     }
 
     /**
      * @param profileTargetMap the profileTargetMap to set
      */
-    public void setProfileTargetMap(HashMap<Value, Integer> profileTargetMap) {
+    public void setProfileTargetMap(HashMap<Value, Value> profileTargetMap) {
         this.profileTargetMap = profileTargetMap;
     }
 

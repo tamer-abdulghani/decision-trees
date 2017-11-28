@@ -57,9 +57,8 @@ public class DAO {
         /**
          * Set possible values for each characteristic if it is categorical type
          */
-        
         trainingSet.updateCharactersticsPossibleValues();
-        
+
         return trainingSet;
     }
 

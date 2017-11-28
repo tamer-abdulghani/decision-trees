@@ -424,7 +424,6 @@ public class mainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         SingleCharacteristicTree tree = (SingleCharacteristicTree) jComboBox2.getSelectedItem();
         this.controller.assessQualityOfTree(tree);
-
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -502,6 +501,7 @@ public class mainFrame extends javax.swing.JFrame {
                 || x.getName().toLowerCase().equals("pclass")
                 || x.getName().toLowerCase().equals("sibsp")
                 || x.getName().toLowerCase().equals("parch")
+                || x.getName().toLowerCase().equals("embarked")
                 )
                 .collect(Collectors.toList())
                 .toArray();

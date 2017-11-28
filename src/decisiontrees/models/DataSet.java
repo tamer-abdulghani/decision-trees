@@ -14,10 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
-import weka.core.Attribute;
-import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SparseInstance;
 
 /**
  *
@@ -34,6 +31,12 @@ public class DataSet {
         this.rows = new ArrayList<>();
     }
 
+    /**
+     * Checking the values ranges for each characteristic and check if the
+     * distinct values count is greater less 10, then it is a Categorical
+     * Characteristic, otherwise we can consider this is NOT categorical
+     * Characteristic,
+     */
     public void updateCharactersticsPossibleValues() {
         for (Characteristic c : charas) {
             ArrayList<Value> values = new ArrayList<>();
@@ -92,6 +95,7 @@ public class DataSet {
                 || x.getName().toLowerCase().equals("pclass")
                 || x.getName().toLowerCase().equals("sibsp")
                 || x.getName().toLowerCase().equals("parch")
+                || x.getName().toLowerCase().equals("embarked")
                 )
                 .collect(Collectors.toList());
 
@@ -101,6 +105,21 @@ public class DataSet {
         }
 
         return allTreesList;
+    }
+
+    /**
+     * @param wekaFilePath the file path of weka .arff file
+     * @return the decision tree of this algorithm, then you need just to print
+     * Classifier Object.
+     */
+    public Classifier createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
+
+        BufferedReader reader = new BufferedReader(new FileReader(wekaFilePath));
+        Instances train = new Instances(reader);
+        train.setClassIndex(train.numAttributes() - 1);
+        Classifier cls = new J48();
+        cls.buildClassifier(train);
+        return cls;
     }
 
     /**
@@ -144,15 +163,4 @@ public class DataSet {
     public void setRows(ArrayList<Row> rows) {
         this.rows = rows;
     }
-
-    public Classifier createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
-
-        BufferedReader reader = new BufferedReader(new FileReader(wekaFilePath));
-        Instances train = new Instances(reader);
-        train.setClassIndex(train.numAttributes() - 1);
-        Classifier cls = new J48();
-        cls.buildClassifier(train);
-        return cls;
-    }
-
 }
