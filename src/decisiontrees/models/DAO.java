@@ -40,33 +40,45 @@ public class DAO {
      * charName empty when you want to return all rows
      */
     public DataSet extractTrainingData(ArrayList<String> charasList) {
-        DataSet set = new DataSet();
+        DataSet trainingSet = new DataSet();
 
+        /*
+        Loading characteristic from database.
+         */
         ArrayList<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, true);
-        set.setCharas(listOfCharas);
-        ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
-        set.setRows(listOfRows);
+        trainingSet.setCharas(listOfCharas);
 
-        return set;
+        /*
+        Loading rows from database.
+         */
+        ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
+        trainingSet.setRows(listOfRows);
+
+        /**
+         * Set possible values for each characteristic if it is categorical type
+         */
+        
+        trainingSet.updateCharactersticsPossibleValues();
+        
+        return trainingSet;
     }
 
     public TestDataSet extractTestingData(ArrayList<String> charasList) {
-        TestDataSet set = new TestDataSet();
+        TestDataSet testingSet = new TestDataSet();
 
+        /*
+        Loading characteristic from database.
+         */
         ArrayList<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, false);
-        set.setCharas(listOfCharas);
+        testingSet.setCharas(listOfCharas);
+
+        /*
+        Loading rows from database.
+         */
         ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
-        set.setRows(listOfRows);
+        testingSet.setRows(listOfRows);
 
-        return set;
-    }
-
-    public void testNotNullValue(List<String> list) {
-
-    }
-
-    public void createTrainingRow() {
-
+        return testingSet;
     }
 
     public void loadDatasources() {
@@ -84,13 +96,6 @@ public class DAO {
         }
     }
 
-    /*
-     * charName empty when you want to return all rows
-     */
-    public void listRows(String charName) {
-
-    }
-
     private ArrayList<Characteristic> extractListOfCharacteristics(ArrayList<String> charasList, boolean isTraining) {
 
         ArrayList<Characteristic> listOfCharas = new ArrayList<>();
@@ -99,12 +104,22 @@ public class DAO {
             String sql = "SELECT * FROM characteristics";
 
             if (isTraining) {
+                /*
+                loading only training dataset.
+                 */
                 sql += " WHERE dataSourceId = " + 1 + " ";
             } else {
+
+                /*
+                loading only testing dataset + gender submission
+                 */
                 sql += " WHERE dataSourceId != " + 1 + " ";
             }
 
             if (charasList != null) {
+                /*
+                loading specific charateristic from the charasList parameter.
+                 */
                 sql += " AND nameChar in (" + String.join(",", charasList) + ")";
             }
 
@@ -112,11 +127,15 @@ public class DAO {
             ResultSet result = stmt.executeQuery(sql);
 
             while (result.next()) {
+                /*
+                reading from result
+                 */
                 int idChar = result.getInt(1);
                 String nameChar = result.getString(2);
                 String typeChar = result.getString(3);
 
                 CharacteristicType type = CharacteristicType.Boolean;
+
                 switch (typeChar.toLowerCase()) {
                     case "numerical":
                         type = CharacteristicType.Numerical;
@@ -133,71 +152,81 @@ public class DAO {
             }
 
         } catch (SQLException e) {
+            System.out.println("Error loading characterstics" + e);
         }
 
         return listOfCharas;
     }
 
     private ArrayList<Row> extractListOfRows(ArrayList<Characteristic> listOfCharas) {
-        ArrayList<Row> rows = new ArrayList<>();
+        ArrayList<Row> allRows = new ArrayList<>();
         ArrayList<Integer> nullableRows = new ArrayList<>();
 
         if (listOfCharas != null && listOfCharas.size() > 0) {
             try {
                 String sql = "SELECT * FROM rows";
 
-                List<String> a = new ArrayList<String>();
-                a = listOfCharas.stream().map(e -> "" + e.getId()).collect(Collectors.toList());
+                List<String> selectedCharasIDs = new ArrayList<String>();
+                selectedCharasIDs = listOfCharas.stream().map(e -> "" + e.getId()).collect(Collectors.toList());
 
-                sql += " WHERE CharId in (" + String.join(",", a) + ")";
+                /*
+                loading only specific characterstics 
+                 */
+                sql += " WHERE CharId in (" + String.join(",", selectedCharasIDs) + ")";
 
-                System.out.println("" + sql);
                 Statement stmt = conn.createStatement();
                 ResultSet result = stmt.executeQuery(sql);
 
                 while (result.next()) {
+                    /*
+                    Reading rows from result
+                     */
                     int rowId = result.getInt(1);
                     int charId = result.getInt(2);
                     String value = result.getString(3);
 
                     Characteristic c = listOfCharas.stream().filter(x -> x.getId() == charId).collect(Collectors.toList()).get(0);
 
-                    if (!value.equals("")) {
-                        if (!rows.stream().map(e -> e.getRowId()).collect(Collectors.toList()).contains(rowId)) {
-                            rows.add(new Row(rowId));
+                    /*
+                    checking if the value equals null ==> mark this row as nullable row.
+                     */
+                    if (value.equals("")) {
+                        nullableRows.add(rowId);
+                    } else {
+                        /*
+                            if rows not yet loaded to the list ==> add 
+                         */
+                        if (!allRows.stream().map(e -> e.getRowId()).collect(Collectors.toList()).contains(rowId)) {
+                            allRows.add(new Row(rowId));
                         }
 
-                        Row row = rows.stream().filter(e -> e.getRowId() == rowId).collect(Collectors.toList()).get(0);
-
+                        /*
+                             get and update the row with selected characterstic value.
+                         */
+                        Row row = allRows.stream().filter(e -> e.getRowId() == rowId).collect(Collectors.toList()).get(0);
                         row.insertNewValue(c, value);
-                    } else {
-                        nullableRows.add(rowId);
                     }
                 }
 
             } catch (SQLException e) {
-                System.out.println("Error Listing Rows: " + e);
-            }
-        }
-
-        for (int i = 0; i < nullableRows.size(); i++) {
-            int d = nullableRows.get(i);
-            if (rows.stream().filter(x -> x.getRowId() == d).collect(Collectors.toList()).size() > 0) {
-                Row r = rows.stream().filter(x -> x.getRowId() == d).collect(Collectors.toList()).get(0);
-                if (rows.contains(r)) {
-                    rows.remove(r);
-                }
+                System.out.println("Error loading Rows: " + e);
             }
         }
 
         /*
-        for (Row r : rows) {
-            for (Map.Entry<Characteristic, Value> el : r.getValuesMap().entrySet()) {
-                System.out.println("" + el.getKey().getName() + ":" + el.getValue());
+        delete from the result every row that is exist in the nullable rows list, because it contains null values.
+         */
+        for (int i = 0; i < nullableRows.size(); i++) {
+            int nullRow = nullableRows.get(i);
+            if (allRows.stream().filter(x -> x.getRowId() == nullRow).collect(Collectors.toList()).size() > 0) {
+                Row r = allRows.stream().filter(x -> x.getRowId() == nullRow).collect(Collectors.toList()).get(0);
+                if (allRows.contains(r)) {
+                    allRows.remove(r);
+                }
             }
         }
-         */
-        return rows;
+
+        return allRows;
     }
 
 }

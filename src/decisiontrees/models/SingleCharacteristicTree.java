@@ -5,6 +5,7 @@
  */
 package decisiontrees.models;
 
+import decisiontrees.helpers.ValuePair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,27 +25,45 @@ public class SingleCharacteristicTree {
     private Characteristic target;
     private HashMap<Value, Integer> profileTargetMap;
 
+    /**
+     * This constructor will build a decision tree related to only one
+     * characteristic
+     *
+     * @param profile specific characteristic to be the profile class of the
+     * tree
+     * @param target specific characteristic to be the target class of the tree,
+     * for example: @@survived class
+     * @param values list of all rows representing the dataset values.
+     *
+     */
     public SingleCharacteristicTree(Characteristic profile, Characteristic target, ArrayList<Row> values) {
         this.profile = profile;
         this.target = target;
         this.profileTargetMap = new HashMap<>();
-        ArrayList<Tempsfd> temp = new ArrayList<>();
+
+        ArrayList<ValuePair> pairsList = new ArrayList<>();
         for (Row r : values) {
-            Value profileValue = r.getValuesMap().get(this.profile);
-            Value targetValue = r.getValuesMap().get(this.target);
-            temp.add(new Tempsfd(profileValue, targetValue));
+            Value profileValue = r.getValuesMap().get(profile);
+            Value targetValue = r.getValuesMap().get(target);
+            pairsList.add(new ValuePair(profileValue, targetValue));
         }
 
-        System.out.println("" + temp.size());
-
-        List<Value> uniqueClassValues = temp.stream().map(x -> x.getSource()).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
+        /**
+         * Get the distinct values from the profile, for example: (male, female)
+         * Or (1,2,3)
+         */
+        List<Value> uniqueProfileValues = pairsList.stream().map(x -> x.getSource()).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
 
         int max = 0;
         Value survivedClass = null;
         Value targetClass = null;
-        for (Value a : uniqueClassValues) {
+
+        /**
+         * for each profile value, get the count of survived = 1
+         */
+        for (Value a : uniqueProfileValues) {
             int count = 0;
-            for (Tempsfd el : temp) {
+            for (ValuePair el : pairsList) {
                 if (el.getSource().equals(a)) {
                     count++;
                 }
@@ -56,7 +75,7 @@ public class SingleCharacteristicTree {
             }
         }
 
-        for (Value a : uniqueClassValues) {
+        for (Value a : uniqueProfileValues) {
             if (a == survivedClass) {
                 this.profileTargetMap.put(a, 1);
             } else {
@@ -77,21 +96,6 @@ public class SingleCharacteristicTree {
         }
         return result;
 
-    }
-
-    public class Tempsfd {
-
-        public Value source;
-        public Value target;
-
-        private Tempsfd(Value profileValue, Value targetValue) {
-            this.source = profileValue;
-            this.target = targetValue;
-        }
-
-        public Value getSource() {
-            return this.source;
-        }
     }
 
     public Integer getTargetValue(Value value) {

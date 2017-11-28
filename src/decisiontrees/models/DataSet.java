@@ -5,9 +5,19 @@
  */
 package decisiontrees.models;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import weka.classifiers.Classifier;
+import weka.classifiers.trees.J48;
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.SparseInstance;
 
 /**
  *
@@ -24,15 +34,54 @@ public class DataSet {
         this.rows = new ArrayList<>();
     }
 
-    public SingleCharacteristicTree createCharacteristicTree(Characteristic c) {
+    public void updateCharactersticsPossibleValues() {
+        for (Characteristic c : charas) {
+            ArrayList<Value> values = new ArrayList<>();
+            for (Row r : rows) {
+                values.add(r.getValuesMap().get(c));
+            }
+
+            List<Value> distinctValues = values.stream().distinct().collect(Collectors.toList());
+            if (distinctValues.size() < 10) {
+                c.setCategorical(true);
+                c.setPossibleValues(distinctValues);
+            } else {
+                c.setCategorical(false);
+            }
+        }
+
+        /*
+        for (Characteristic c : charas) {
+            System.out.println("Characteristic : " + c.getName() + ", is Categorical : " + c.getCategorical());
+            for (Value v : c.getPossibleValues()) {
+                System.out.println("" + v.toString());
+            }
+            System.out.println("*********************");
+        }
+         */
+    }
+
+    /**
+     * create single characteristic tree belongs to only one characteristic
+     *
+     * @param profile specific characteristic
+     * @return SingleCharacteristicTree Object
+     */
+    public SingleCharacteristicTree createSingleCharacteristicTree(Characteristic profile) {
 
         Characteristic target = this.charas.stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
 
-        SingleCharacteristicTree tree = new SingleCharacteristicTree(c, target, rows);
+        SingleCharacteristicTree tree = new SingleCharacteristicTree(profile, target, rows);
 
         return tree;
     }
 
+    /**
+     * create list of single characteristic trees with all possible
+     * characteristics
+     *
+     * @return Array List of SingleCharacteristicTree Objects
+     */
     public ArrayList<SingleCharacteristicTree> generateAllPossibleTrees() {
         ArrayList<SingleCharacteristicTree> allTreesList = new ArrayList<>();
         Characteristic target = this.charas.stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
@@ -94,6 +143,16 @@ public class DataSet {
      */
     public void setRows(ArrayList<Row> rows) {
         this.rows = rows;
+    }
+
+    public Classifier createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
+
+        BufferedReader reader = new BufferedReader(new FileReader(wekaFilePath));
+        Instances train = new Instances(reader);
+        train.setClassIndex(train.numAttributes() - 1);
+        Classifier cls = new J48();
+        cls.buildClassifier(train);
+        return cls;
     }
 
 }

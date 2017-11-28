@@ -5,6 +5,8 @@
  */
 package decisiontrees.models;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,11 +18,14 @@ public class Characteristic {
     private int id;
     private String name;
     private CharacteristicType type;
+    private List<Value> possibleValues;
+    private boolean isCategorical;
 
     public Characteristic(int id, String nameChar, CharacteristicType type) {
         this.id = id;
         this.name = nameChar;
         this.type = type;
+        this.possibleValues = new ArrayList<Value>();
     }
 
     /**
@@ -97,6 +102,28 @@ public class Characteristic {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the possibleValues
+     */
+    public List<Value> getPossibleValues() {
+        return possibleValues;
+    }
+
+    /**
+     * @param possibleValues the possibleValues to set
+     */
+    public void setPossibleValues(List<Value> possibleValues) {
+        this.possibleValues = possibleValues;
+    }
+
+    public void setCategorical(boolean b) {
+        this.isCategorical = b;
+    }
+
+    public boolean getCategorical() {
+        return this.isCategorical;
     }
 
 }

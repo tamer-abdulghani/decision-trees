@@ -12,6 +12,9 @@ import decisiontrees.models.DataSet;
 import decisiontrees.models.TestDataSet;
 import decisiontrees.views.mainFrame;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import weka.classifiers.Classifier;
 
 /**
  *
@@ -40,7 +43,7 @@ public class mainController {
     }
 
     public void buildElementaryTree(Characteristic selectedChara) {
-        SingleCharacteristicTree tree = this.trainingModel.createCharacteristicTree(selectedChara);
+        SingleCharacteristicTree tree = this.trainingModel.createSingleCharacteristicTree(selectedChara);
         this.frame.displaySingleTree(tree);
     }
 
@@ -57,6 +60,15 @@ public class mainController {
     public void assessQualityOfTree(SingleCharacteristicTree tree) {
         float propotions = this.testModel.assessingQualityOfTree(tree);
         this.frame.displayTreeQuality(tree, propotions);
+    }
+
+    public String buildDecisionTreeWithC45(String filePath) {
+        try {
+            return this.trainingModel.createDecisionTreeC45(filePath).toString();
+        } catch (Exception ex) {
+            Logger.getLogger(mainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "Error";
     }
 
 }
