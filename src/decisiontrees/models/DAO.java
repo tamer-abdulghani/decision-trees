@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
  */
 public class DAO {
 
-    private static String url = "jdbc:mysql://localhost/titanic_project";
+    private static String url = "jdbc:mysql://localhost/titanic_project_tamer_database";
     private static String user = "root";
-    private static String pass = "12345678";
+    private static String pass = "";
 
     private Connection conn;
 

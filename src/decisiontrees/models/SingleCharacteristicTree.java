@@ -42,8 +42,17 @@ public class SingleCharacteristicTree {
         this.target = target;
         this.profileTargetMap = new HashMap<>();
 
+        // helper hashmap which contains the value of profile and coresponding target value with the count number
         HashMap<Value, HashMap<Value, Integer>> list = new HashMap<>();
-
+        /*
+        3.0->false:372
+        3.0->true:119
+        1.0->false:80
+        1.0->true:134
+        2.0->false:97
+        2.0->true:87
+         */
+        // helper list pairs list contains two charecteristics values, the profile and the target
         ArrayList<ValuePair> pairsList = new ArrayList<>();
         for (Row r : values) {
             Value profileValue = r.getValuesMap().get(profile);
