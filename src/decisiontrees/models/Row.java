@@ -70,7 +70,7 @@ public class Row {
         }
     }
 
-    public Value getTargetValue() {
+    public Value getRowTargetValue() {
         for (Map.Entry<Characteristic, Value> entry : valuesMap.entrySet()) {
             Characteristic key = entry.getKey();
             Value value = entry.getValue();

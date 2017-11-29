@@ -44,6 +44,7 @@ public class mainController {
         charalist.add("Sex");
         charalist.add("SibSp");
         charalist.add("Embarked");
+        charalist.add("Survived");
 
         this.trainingModel = this.database.extractTrainingData(charalist);
         this.frame.displayTrainingCharasCategoricalOnly(this.trainingModel);
@@ -66,6 +67,7 @@ public class mainController {
         charalist.add("Sex");
         charalist.add("SibSp");
         charalist.add("Embarked");
+        charalist.add("Survived");
 
         this.testModel = this.database.extractTestingData(charalist);
         this.frame.displayTestModel(this.testModel);

@@ -53,7 +53,7 @@ public class DAO {
          */
         ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
         trainingSet.setRows(listOfRows);
-
+        System.out.println("" + listOfRows.size());
         /**
          * Set possible values for each characteristic if it is categorical type
          */
@@ -119,7 +119,7 @@ public class DAO {
                 /*
                 loading specific charateristic from the charasList parameter.
                  */
-                sql += " AND nameChar in ('" + String.join("','", charasList) + "','Survived')";
+                sql += " AND nameChar in ('" + String.join("','", charasList) + "')";
                 System.out.println("" + sql);
             }
 

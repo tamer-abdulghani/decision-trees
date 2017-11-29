@@ -18,10 +18,13 @@ public class TestDataSet extends DataSet {
         float wrongAnswers = 0;
 
         for (Row r : this.getRows()) {
-            Value actualValue = r.getTargetValue();
+            Value actualValue = r.getRowTargetValue();
             for (Map.Entry<Characteristic, Value> el : r.getValuesMap().entrySet()) {
+
                 if (el.getKey().equals(tree.getProfile())) {
+                    //System.out.println("" + el.getKey().getName() + ":" + el.getValue() + ": actual : " + actualValue + " : tree : " + tree.getTargetValue(el.getValue()));
                     Value predictedValue = tree.getTargetValue(el.getValue());
+                    //System.out.println(el.getKey().getType().toString() + "____" + predictedValue + ":" + actualValue + " ==" + predictedValue.equals(actualValue));
                     if (predictedValue.equals(actualValue)) {
                         correctAnswers++;
                     } else {
@@ -30,6 +33,7 @@ public class TestDataSet extends DataSet {
                 }
             }
         }
+
         float propotion = ((float) (correctAnswers / (correctAnswers + wrongAnswers))) * 100;
         return propotion;
     }
