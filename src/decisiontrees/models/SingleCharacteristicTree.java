@@ -100,11 +100,11 @@ public class SingleCharacteristicTree {
             // Means from the list that we build (profile , (target,count) ), give me the maximum value correspnd to specific target
             // System.out.println(ele.getKey() + ":" + ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getValue());
         }
-
+        /*
         for (Map.Entry<Value, Value> a : this.profileTargetMap.entrySet()) {
             System.out.println(a.getKey() + " -> " + a.getValue());
         }
-
+         */
     }
 
     @Override

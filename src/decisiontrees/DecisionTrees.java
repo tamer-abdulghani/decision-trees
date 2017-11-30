@@ -26,6 +26,58 @@ public class DecisionTrees {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
+        /**
+         * Specifying our characteristic input
+         */
+        ArrayList<String> charalist = new ArrayList<String>();
+        charalist.add("Parch");
+        charalist.add("Pclass");
+        charalist.add("Sex");
+        charalist.add("SibSp");
+        charalist.add("Embarked");
+        charalist.add("Survived");
+
+        /**
+         * Loading training dataset
+         */
+        DAO database = new DAO();
+        DataSet dataset = database.extractTrainingData(charalist);
+        System.out.println("===========");
+        System.out.println("Nb of characterstics loaded: " + dataset.getCharas().size());
+        System.out.println("Nb of rows loaded: " + dataset.getRows().size());
+        System.out.println("===========");
+
+        /**
+         * Generating All Possible Trees
+         */
+        ArrayList<SingleCharacteristicTree> trees = dataset.generateAllPossibleTrees();
+        String result = "";
+
+        for (SingleCharacteristicTree tree : trees) {
+            result += tree.toString();
+            result += "\n";
+            result += "*****************************";
+            result += "\n";
+        }
+        System.out.println(result);
+
+        /**
+         * Loading test dataset and assessing the quality of all the trees
+         */
+        database.extractTestingData(charalist);
+        TestDataSet trainDataSet = database.extractTestingData(charalist);
+        for (SingleCharacteristicTree tree : trees) {
+            float propotions = trainDataSet.assessingQualityOfTree(tree);
+
+            result = "";
+            result += tree.getProfile().getName() + " Decision Tree Quality is the following \n";
+            result += "correct answers = " + propotions + " % \n";
+            result += "wronge answers = " + (100 - propotions) + " % \n";
+
+            System.out.println(result);
+        }
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
@@ -39,5 +91,6 @@ public class DecisionTrees {
         }
         mainController controller = new mainController();
         controller.startGUI();
+
     }
 }

@@ -11,9 +11,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.FastVector;
+import weka.core.Instance;
 import weka.core.Instances;
 
 /**
@@ -112,14 +118,51 @@ public class DataSet {
      * @return the decision tree of this algorithm, then you need just to print
      * Classifier Object.
      */
-    public Classifier createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
+    public J48 createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
 
+        FastVector attributesList = new FastVector(4);
+        int classIndex = -1;
+        int index = 0;
+        for (Characteristic c : this.charas) {
+
+            FastVector vector = new FastVector(c.getPossibleValues().size());
+            for (Value v : c.getPossibleValues()) {
+                vector.add(v.toString());
+            }
+            Attribute attribute = new Attribute(c.getName(), vector);
+            attributesList.add(attribute);
+            if (c.getName().toLowerCase().equals("survived")) {
+                classIndex = index;
+            }
+            index++;
+        }
+
+        Instances trainDataSet = new Instances("TrainingDataSet", attributesList, this.rows.size());
+        trainDataSet.setClassIndex(classIndex);
+
+        for (Row r : this.rows) {
+            Instance instance = new DenseInstance(r.getValuesMap().size());
+            for (Map.Entry<Characteristic, Value> a : r.getValuesMap().entrySet()) {
+                System.out.println("" + a.getKey().getName().toString());
+                Attribute a1 = (Attribute) attributesList.stream().filter(x -> ((Attribute) x).name().toLowerCase().equals(a.getKey().getName().toLowerCase())).findFirst().get();
+
+                instance.setValue(a1, a.getValue().toString());
+            }
+            trainDataSet.add(instance);
+        }
+
+        //Instances train = new Instances(trainDataSet);
+        //train.setClassIndex(classIndex + 1);
+        J48 cls = new J48();
+        cls.buildClassifier(trainDataSet);
+        return cls;
+        /*
         BufferedReader reader = new BufferedReader(new FileReader(wekaFilePath));
         Instances train = new Instances(reader);
         train.setClassIndex(train.numAttributes() - 1);
-        Classifier cls = new J48();
+        J48 cls = new J48();
         cls.buildClassifier(train);
-        return cls;
+        return cls;*/
     }
 
     /**

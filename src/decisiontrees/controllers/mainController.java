@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Classifier;
+import weka.classifiers.trees.J48;
 
 /**
  *
@@ -78,13 +79,13 @@ public class mainController {
         this.frame.displayTreeQuality(tree, propotions);
     }
 
-    public String buildDecisionTreeWithC45(String filePath) {
+    public J48 buildDecisionTreeWithC45(String filePath) {
         try {
-            return this.trainingModel.createDecisionTreeC45(filePath).toString();
+            return this.trainingModel.createDecisionTreeC45(filePath);
         } catch (Exception ex) {
             Logger.getLogger(mainController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return "Error";
+        return null;
     }
 
 }

@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
  */
 public class DAO {
 
-    private static String url = "jdbc:mysql://localhost/titanic_project_tamer_database";
+    private static String url = "jdbc:mysql://localhost/titanic_project";
     private static String user = "root";
-    private static String pass = "";
+    private static String pass = "12345678";
 
     private Connection conn;
 
@@ -120,7 +120,7 @@ public class DAO {
                 loading specific charateristic from the charasList parameter.
                  */
                 sql += " AND nameChar in ('" + String.join("','", charasList) + "')";
-                System.out.println("" + sql);
+                //System.out.println("" + sql);
             }
 
             Statement stmt = conn.createStatement();

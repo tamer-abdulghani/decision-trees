@@ -33,7 +33,8 @@ public class TestDataSet extends DataSet {
                 }
             }
         }
-
+        System.out.println("" + correctAnswers);
+        System.out.println("" + wrongAnswers);
         float propotion = ((float) (correctAnswers / (correctAnswers + wrongAnswers))) * 100;
         return propotion;
     }
