@@ -77,7 +77,7 @@ public class DecisionTrees {
 
             System.out.println(result);
         }
-
+        /*
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
@@ -90,7 +90,7 @@ public class DecisionTrees {
             Logger.getLogger(DecisionTrees.class.getName()).log(Level.SEVERE, null, ex);
         }
         mainController controller = new mainController();
-        controller.startGUI();
+        controller.startGUI();*/
 
     }
 }
