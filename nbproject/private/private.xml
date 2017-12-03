@@ -12,10 +12,11 @@
             <file>file:/E:/Github/decision-trees/src/decisiontrees/models/DAO.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/helpers/ValuePair.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/models/ValueNumerical.java</file>
-            <file>file:/E:/Github/decision-trees/src/decisiontrees/models/TestDataSet.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/models/Characteristic.java</file>
+            <file>file:/E:/Github/decision-trees/src/decisiontrees/models/TestingDataSet.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/models/Row.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/views/mainFrame.java</file>
+            <file>file:/E:/Github/decision-trees/src/decisiontrees/models/ValueBoolean.java</file>
             <file>file:/E:/Github/decision-trees/src/decisiontrees/models/Value.java</file>
         </group>
     </open-files>
