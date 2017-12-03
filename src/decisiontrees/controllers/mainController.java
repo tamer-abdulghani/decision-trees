@@ -9,12 +9,13 @@ import decisiontrees.models.DAO;
 import decisiontrees.models.SingleCharacteristicTree;
 import decisiontrees.models.Characteristic;
 import decisiontrees.models.DataSet;
-import decisiontrees.models.TestDataSet;
+import decisiontrees.models.TestingDataSet;
 import decisiontrees.views.mainFrame;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 
 /**
@@ -24,8 +25,8 @@ import weka.classifiers.trees.J48;
 public class mainController {
 
     private DAO database;
-    private DataSet trainingModel;
-    private TestDataSet testModel;
+    private DataSet trainingDataSet;
+    private TestingDataSet testingDataSet;
     private mainFrame frame;
 
     public mainController() {
@@ -46,18 +47,21 @@ public class mainController {
         charalist.add("SibSp");
         charalist.add("Embarked");
         charalist.add("Survived");
+        int trainingDatasourceId = 11;
 
-        this.trainingModel = this.database.extractTrainingData(charalist);
-        this.frame.displayTrainingCharasCategoricalOnly(this.trainingModel);
+        this.trainingDataSet = this.database.extractTrainingData(charalist, trainingDatasourceId);
+        this.frame.displayTrainingCharasCategoricalOnly(this.trainingDataSet);
     }
 
     public void buildElementaryTree(Characteristic selectedChara) {
-        SingleCharacteristicTree tree = this.trainingModel.createSingleCharacteristicTree(selectedChara);
+        Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+        SingleCharacteristicTree tree = this.trainingDataSet.createSingleCharacteristicTree(selectedChara, target);
         this.frame.displaySingleTree(tree);
     }
 
     public void buildAllTrees() {
-        ArrayList<SingleCharacteristicTree> trees = this.trainingModel.generateAllPossibleTrees();
+        Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+        ArrayList<SingleCharacteristicTree> trees = this.trainingDataSet.generateAllPossibleTrees(target);
         this.frame.displayAllTrees(trees);
     }
 
@@ -69,19 +73,51 @@ public class mainController {
         charalist.add("SibSp");
         charalist.add("Embarked");
         charalist.add("Survived");
+        int trainingDatasourceId = 12;
 
-        this.testModel = this.database.extractTestingData(charalist);
-        this.frame.displayTestModel(this.testModel);
+        this.testingDataSet = this.database.extractTestingData(charalist, trainingDatasourceId);
+        this.frame.displayTestModel(this.testingDataSet);
     }
 
     public void assessQualityOfTree(SingleCharacteristicTree tree) {
-        float propotions = this.testModel.assessingQualityOfTree(tree);
+        float propotions = this.testingDataSet.assessingQualityOfTree(tree);
         this.frame.displayTreeQuality(tree, propotions);
     }
 
-    public J48 buildDecisionTreeWithC45(String filePath) {
+    public void assessQualityOfAllTree() {
+        Map<SingleCharacteristicTree, Float> mapTreePropotion = new HashMap<>();
+        Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+
+        ArrayList<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
+
+        for (SingleCharacteristicTree tree : allTrees) {
+            mapTreePropotion.put(tree, this.testingDataSet.assessingQualityOfTree(tree));
+        }
+
+        this.frame.displayAllTreesQuality(mapTreePropotion);
+
+    }
+
+    public void bestDecisionTree() {
+        Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+        ArrayList<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
+        float MaxPropotionCorrectAnswers = 0;
+        SingleCharacteristicTree bestTree = null;
+
+        for (SingleCharacteristicTree tree : allTrees) {
+            if (this.testingDataSet.assessingQualityOfTree(tree) > MaxPropotionCorrectAnswers) {
+                MaxPropotionCorrectAnswers = this.testingDataSet.assessingQualityOfTree(tree);
+                bestTree = tree;
+            }
+        }
+
+        this.frame.displayBestTree(bestTree, MaxPropotionCorrectAnswers);
+
+    }
+
+    public J48 buildDecisionTreeWithC45() {
         try {
-            return this.trainingModel.createDecisionTreeC45(filePath);
+            return this.trainingDataSet.createDecisionTreeC45();
         } catch (Exception ex) {
             Logger.getLogger(mainController.class.getName()).log(Level.SEVERE, null, ex);
         }

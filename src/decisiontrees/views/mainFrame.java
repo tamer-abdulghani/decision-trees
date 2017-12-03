@@ -14,16 +14,14 @@ import decisiontrees.models.Value;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JFileChooser;
 import javax.swing.JList;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.gui.treevisualizer.PlaceNode2;
 import weka.gui.treevisualizer.TreeVisualizer;
@@ -37,7 +35,7 @@ public class mainFrame extends javax.swing.JFrame {
     mainController controller;
 
     /**
-     * Creates new form mainFrame
+     * @param c its the main controller Creates new form mainFrame
      */
     public mainFrame(mainController c) {
         this.controller = c;
@@ -80,6 +78,8 @@ public class mainFrame extends javax.swing.JFrame {
         jComboBox2 = new javax.swing.JComboBox<>();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
+        jButton7 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
         jPanel8 = new javax.swing.JPanel();
         jButton6 = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -166,7 +166,7 @@ public class mainFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("All Trees"));
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("All Characterstics Trees (Categorical only)"));
 
         jButton5.setText("Build All Trees ");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -281,20 +281,34 @@ public class mainFrame extends javax.swing.JFrame {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jComboBox2, 0, 262, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jComboBox2, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         jTextArea4.setColumns(20);
         jTextArea4.setRows(5);
         jScrollPane4.setViewportView(jTextArea4);
+
+        jButton7.setText("Evaluate All Decision Trees");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
+        jButton8.setText("Best Decision Tree");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -308,27 +322,31 @@ public class mainFrame extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4)
-                        .addGap(18, 18, 18))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jScrollPane4)
-                        .addContainerGap())))
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane4))
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(jButton4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton8)
+                        .addGap(12, 12, 12))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)))
+                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
                     .addComponent(jScrollPane4))
@@ -456,8 +474,9 @@ public class mainFrame extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-        J48 t = this.controller.buildDecisionTreeWithC45("");
-        this.jTextArea6.setText(t.toString());
+
+        J48 t = controller.buildDecisionTreeWithC45();
+        jTextArea6.setText(t.toString());
 
         // display classifier
         TreeVisualizer tv;
@@ -471,6 +490,8 @@ public class mainFrame extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
         /*
         JFileChooser c = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Only xml files", "arff", "arff");
@@ -498,6 +519,16 @@ public class mainFrame extends javax.swing.JFrame {
         }*/
     }//GEN-LAST:event_jButton6ActionPerformed
 
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        this.controller.assessQualityOfAllTree();
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        // TODO add your handling code here:
+        this.controller.bestDecisionTree();
+    }//GEN-LAST:event_jButton8ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -505,6 +536,8 @@ public class mainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
     private javax.swing.JComboBox<Characteristic> jComboBox1;
     private javax.swing.JComboBox<SingleCharacteristicTree> jComboBox2;
     private javax.swing.JMenu jMenu1;
@@ -548,7 +581,7 @@ public class mainFrame extends javax.swing.JFrame {
         }
         jTextArea5.setText(result);
 
-        ArrayList<Characteristic> list = model.getCharas();
+        List<Characteristic> list = model.getCharas();
         Object[] array = list
                 .stream()
                 .filter(x -> x.getName().toLowerCase().equals("sex")
@@ -602,6 +635,26 @@ public class mainFrame extends javax.swing.JFrame {
         result += "wronge answers = " + (100 - propotions) + " % \n";
         jTextArea4.setText(result);
 
+    }
+
+    public void displayAllTreesQuality(Map<SingleCharacteristicTree, Float> mapTreePropotion) {
+        String result = "Decision Trees Quality are the following \n \n";
+        for (Map.Entry<SingleCharacteristicTree, Float> treePropotion : mapTreePropotion.entrySet()) {
+            result += treePropotion.getKey().getProfile().getName() + "\n";
+            result += "correct answers = " + treePropotion.getValue() + " % \n";
+            result += "wronge answers = " + (100 - treePropotion.getValue()) + " % \n";
+            result += "********************************* \n \n";
+        }
+        jTextArea4.setText(result);
+    }
+
+    public void displayBestTree(SingleCharacteristicTree bestTree, float MaxPropotionCorrectAnswers) {
+        String result = "Best Decision Tree is: \n \n";
+        result += bestTree.getProfile().getName() + "\n";
+        result += "correct answers = " + MaxPropotionCorrectAnswers + " % \n";
+        result += "wronge answers = " + (100 - MaxPropotionCorrectAnswers) + " % \n";
+
+        jTextArea4.setText(result);
     }
 
     public static class TreeRenderer extends DefaultListCellRenderer {

@@ -5,16 +5,13 @@
  */
 package decisiontrees.models;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -29,17 +26,18 @@ import weka.core.Instances;
 public class DataSet {
 
     private String name;
-    private ArrayList<Characteristic> charas;
-    private ArrayList<Row> rows;
+    private List<Characteristic> charas;
+    private List<Row> rows;
 
-    public DataSet() {
+    public DataSet(String name) {
+        this.name = name;
         this.charas = new ArrayList<>();
         this.rows = new ArrayList<>();
     }
 
     /**
      * Checking the values ranges for each characteristic and check if the
-     * distinct values count is greater less 10, then it is a Categorical
+     * distinct values count is less 10, then it is a Categorical
      * Characteristic, otherwise we can consider this is NOT categorical
      * Characteristic,
      */
@@ -71,29 +69,76 @@ public class DataSet {
     }
 
     /**
-     * create single characteristic tree belongs to only one characteristic
+     * Create single characteristic tree belongs to only one characteristic
      *
-     * @param profile specific characteristic
-     * @return SingleCharacteristicTree Object
+     * @param profile characteristic that represent the profile.
+     * @param target characteristic that represent the target class (here is
+     * "Survived").
+     * @return SingleCharacteristicTree with HashMap containing Pairs
+     * ProfileValue and TargetValue
      */
-    public SingleCharacteristicTree createSingleCharacteristicTree(Characteristic profile) {
+    public SingleCharacteristicTree createSingleCharacteristicTree(Characteristic profile, Characteristic target) {
 
-        Characteristic target = this.charas.stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+        SingleCharacteristicTree tree = new SingleCharacteristicTree(profile, target);
 
-        SingleCharacteristicTree tree = new SingleCharacteristicTree(profile, target, rows);
+        // helper hashmap which contains the value of profile and coresponding target value with the count number
+        /*
+        3.0->false:372
+             true:119
+        1.0->false:80
+             true:134
+        2.0->false:97
+             true:87
+         */
+        Map<Value, Map<Value, Integer>> list = new HashMap<>();
+        for (Row r : this.rows) {
+            Value profileValue = r.getValuesMap().get(profile);
+            Value targetValue = r.getValuesMap().get(target);
+
+            if (!list.containsKey(profileValue)) {
+                list.put(profileValue, new HashMap<>());
+            }
+            if (list.get(profileValue).containsKey(targetValue)) {
+                list.get(profileValue).replace(targetValue, list.get(profileValue).get(targetValue) + 1);
+            } else {
+                list.get(profileValue).put(targetValue, 1);
+            }
+
+        }
+
+        /*
+        for (Map.Entry<Value, Map<Value, Integer>> el : list.entrySet()) {
+            for (Map.Entry<Value, Integer> el2 : el.getValue().entrySet()) {
+                System.out.println("" + el.getKey() + "->" + el2.getKey() + ":" + el2.getValue());
+            }
+        }
+         */
+        Map<Value, Value> map = new HashMap<>();
+        for (Map.Entry<Value, Map<Value, Integer>> ele : list.entrySet()) {
+
+            map.put(
+                    ele.getKey(),
+                    ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getKey()
+            );
+
+            // Means from the list that we build (profile , (target,count) ), give me the maximum value correspnd to specific target
+            // System.out.println(ele.getKey() + ":" + ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getValue());
+        }
+        tree.setProfileTargetMap(map);
 
         return tree;
     }
 
     /**
-     * create list of single characteristic trees with all possible
+     * Create list of single characteristic trees with all possible
      * characteristics
      *
+     * @param target characteristic that represent the target class (here is
+     * "Survived").
      * @return Array List of SingleCharacteristicTree Objects
      */
-    public ArrayList<SingleCharacteristicTree> generateAllPossibleTrees() {
+    public ArrayList<SingleCharacteristicTree> generateAllPossibleTrees(Characteristic target) {
         ArrayList<SingleCharacteristicTree> allTreesList = new ArrayList<>();
-        Characteristic target = this.charas.stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
 
         List<Characteristic> listCategoricalCharas = this.charas
                 .stream()
@@ -105,8 +150,8 @@ public class DataSet {
                 )
                 .collect(Collectors.toList());
 
-        for (Characteristic c : listCategoricalCharas) {
-            SingleCharacteristicTree tree = new SingleCharacteristicTree(c, target, rows);
+        for (Characteristic profile : listCategoricalCharas) {
+            SingleCharacteristicTree tree = createSingleCharacteristicTree(profile, target);
             allTreesList.add(tree);
         }
 
@@ -114,11 +159,9 @@ public class DataSet {
     }
 
     /**
-     * @param wekaFilePath the file path of weka .arff file
-     * @return the decision tree of this algorithm, then you need just to print
-     * Classifier Object.
+     * @return C4.5 Decision Tree through J48 Weka Classifier Object.
      */
-    public J48 createDecisionTreeC45(String wekaFilePath) throws FileNotFoundException, IOException, Exception {
+    public J48 createDecisionTreeC45() throws FileNotFoundException, IOException, Exception {
 
         FastVector attributesList = new FastVector(4);
         int classIndex = -1;
@@ -151,18 +194,9 @@ public class DataSet {
             trainDataSet.add(instance);
         }
 
-        //Instances train = new Instances(trainDataSet);
-        //train.setClassIndex(classIndex + 1);
         J48 cls = new J48();
         cls.buildClassifier(trainDataSet);
         return cls;
-        /*
-        BufferedReader reader = new BufferedReader(new FileReader(wekaFilePath));
-        Instances train = new Instances(reader);
-        train.setClassIndex(train.numAttributes() - 1);
-        J48 cls = new J48();
-        cls.buildClassifier(train);
-        return cls;*/
     }
 
     /**
@@ -182,28 +216,28 @@ public class DataSet {
     /**
      * @return the charas
      */
-    public ArrayList<Characteristic> getCharas() {
+    public List<Characteristic> getCharas() {
         return charas;
     }
 
     /**
      * @param charas the charas to set
      */
-    public void setCharas(ArrayList<Characteristic> charas) {
+    public void setCharas(List<Characteristic> charas) {
         this.charas = charas;
     }
 
     /**
      * @return the rows
      */
-    public ArrayList<Row> getRows() {
+    public List<Row> getRows() {
         return rows;
     }
 
     /**
      * @param rows the rows to set
      */
-    public void setRows(ArrayList<Row> rows) {
+    public void setRows(List<Row> rows) {
         this.rows = rows;
     }
 }

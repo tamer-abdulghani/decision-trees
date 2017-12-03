@@ -18,6 +18,7 @@ public class Characteristic {
     private int id;
     private String name;
     private CharacteristicType type;
+
     private List<Value> possibleValues;
     private boolean isCategorical;
 

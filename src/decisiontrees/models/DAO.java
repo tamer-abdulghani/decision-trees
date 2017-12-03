@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,9 +20,9 @@ import java.util.stream.Collectors;
  */
 public class DAO {
 
-    private static String url = "jdbc:mysql://localhost/titanic_project";
-    private static String user = "root";
-    private static String pass = "12345678";
+    private static final String url = "jdbc:mysql://localhost/project_titanic";
+    private static final String user = "root";
+    private static final String pass = "12345678";
 
     private Connection conn;
 
@@ -36,24 +35,32 @@ public class DAO {
         }
     }
 
-    /*
-     * charName empty when you want to return all rows
+    /**
+     * This method extract the Training Data Set from database.
+     *
+     * @param charasList a list of characteristics that we want to extract from
+     * the database
+     * @param datasourceId a number represent the datasourceId in database that
+     * refer to training dataset not the testing.
+     * @return DataSet object contains a list of characteristics and a list of
+     * rows.
      */
-    public DataSet extractTrainingData(ArrayList<String> charasList) {
-        DataSet trainingSet = new DataSet();
+    public DataSet extractTrainingData(List<String> charasList, int datasourceId) {
+
+        DataSet trainingSet = new DataSet("Training Data Set");
 
         /*
-        Loading characteristic from database.
+        Loading training characteristics from database.
          */
-        ArrayList<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, true);
+        List<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, datasourceId);
         trainingSet.setCharas(listOfCharas);
 
         /*
         Loading rows from database.
          */
-        ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
+        List<Row> listOfRows = extractListOfRows(listOfCharas);
         trainingSet.setRows(listOfRows);
-        System.out.println("" + listOfRows.size());
+
         /**
          * Set possible values for each characteristic if it is categorical type
          */
@@ -62,58 +69,45 @@ public class DAO {
         return trainingSet;
     }
 
-    public TestDataSet extractTestingData(ArrayList<String> charasList) {
-        TestDataSet testingSet = new TestDataSet();
+    /**
+     * This method extract the Testing Data Set from database.
+     *
+     * @param charasList a list of characteristics that we want to extract from
+     * the database
+     * @param datasourceId a number represent the datasourceId in database that
+     * refer to testing dataset not the training.
+     * @return DataSet object contains a list of characteristics and a list of
+     * rows.
+     */
+    public TestingDataSet extractTestingData(ArrayList<String> charasList, int datasourceId) {
+        TestingDataSet testingSet = new TestingDataSet("Testing Data Set");
 
         /*
-        Loading characteristic from database.
+        Loading testing characteristics from database.
          */
-        ArrayList<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, false);
+        List<Characteristic> listOfCharas = extractListOfCharacteristics(charasList, datasourceId);
         testingSet.setCharas(listOfCharas);
 
         /*
-        Loading rows from database.
+        Loading rows from database related to the testing Characterstics
          */
-        ArrayList<Row> listOfRows = extractListOfRows(listOfCharas);
+        List<Row> listOfRows = extractListOfRows(listOfCharas);
         testingSet.setRows(listOfRows);
 
         return testingSet;
     }
 
-    public void loadDatasources() {
-        try {
-            String sql = "SELECT * FROM datasources";
-            Statement stmt = conn.createStatement();
-            ResultSet result = stmt.executeQuery(sql);
-
-            while (result.next()) {
-                System.out.println("DataSrouces: " + result.getInt(1) + ", " + result.getString(2));
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error Listing Charasterstics: " + e);
-        }
-    }
-
-    private ArrayList<Characteristic> extractListOfCharacteristics(ArrayList<String> charasList, boolean isTraining) {
+    private ArrayList<Characteristic> extractListOfCharacteristics(List<String> charasList, int datasourceId) {
 
         ArrayList<Characteristic> listOfCharas = new ArrayList<>();
 
         try {
             String sql = "SELECT * FROM characteristics";
 
-            if (isTraining) {
-                /*
-                loading only training dataset.
-                 */
-                sql += " WHERE dataSourceId = " + 1 + " ";
-            } else {
-
-                /*
-                loading only testing dataset + gender submission
-                 */
-                sql += " WHERE dataSourceId != " + 1 + " ";
-            }
+            /*
+                loading dataset based on datasourceId, either training characterstics or testing characterstics.
+             */
+            sql += " WHERE dataSourceId = " + datasourceId + " ";
 
             if (charasList != null) {
                 /*
@@ -158,15 +152,15 @@ public class DAO {
         return listOfCharas;
     }
 
-    private ArrayList<Row> extractListOfRows(ArrayList<Characteristic> listOfCharas) {
-        ArrayList<Row> allRows = new ArrayList<>();
-        ArrayList<Integer> nullableRows = new ArrayList<>();
+    private List<Row> extractListOfRows(List<Characteristic> listOfCharas) {
+        List<Row> allRows = new ArrayList<>();
+        List<Integer> nullableRows = new ArrayList<>();
 
         if (listOfCharas != null && listOfCharas.size() > 0) {
             try {
-                String sql = "SELECT * FROM rows";
+                String sql = "SELECT * FROM tuples";
 
-                List<String> selectedCharasIDs = new ArrayList<String>();
+                List<String> selectedCharasIDs;
                 selectedCharasIDs = listOfCharas.stream().map(e -> "" + e.getId()).collect(Collectors.toList());
 
                 /*

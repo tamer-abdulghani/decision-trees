@@ -8,11 +8,8 @@ package decisiontrees;
 import decisiontrees.controllers.mainController;
 import decisiontrees.models.*;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -42,7 +39,8 @@ public class DecisionTrees {
          * Loading training dataset
          */
         DAO database = new DAO();
-        DataSet dataset = database.extractTrainingData(charalist);
+        int trainingDatasourceId = 11;
+        DataSet dataset = database.extractTrainingData(charalist, trainingDatasourceId);
         System.out.println("===========");
         System.out.println("Nb of characterstics loaded: " + dataset.getCharas().size());
         System.out.println("Nb of rows loaded: " + dataset.getRows().size());
@@ -51,7 +49,8 @@ public class DecisionTrees {
         /**
          * Generating All Possible Trees
          */
-        ArrayList<SingleCharacteristicTree> trees = dataset.generateAllPossibleTrees();
+        Characteristic target = dataset.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
+        ArrayList<SingleCharacteristicTree> trees = dataset.generateAllPossibleTrees(target);
         String result = "";
 
         for (SingleCharacteristicTree tree : trees) {
@@ -65,10 +64,10 @@ public class DecisionTrees {
         /**
          * Loading test dataset and assessing the quality of all the trees
          */
-        database.extractTestingData(charalist);
-        TestDataSet trainDataSet = database.extractTestingData(charalist);
+        int testingDatasourceId = 12;
+        TestingDataSet testingDataSet = database.extractTestingData(charalist, testingDatasourceId);
         for (SingleCharacteristicTree tree : trees) {
-            float propotions = trainDataSet.assessingQualityOfTree(tree);
+            float propotions = testingDataSet.assessingQualityOfTree(tree);
 
             result = "";
             result += tree.getProfile().getName() + " Decision Tree Quality is the following \n";
@@ -90,7 +89,7 @@ public class DecisionTrees {
             Logger.getLogger(DecisionTrees.class.getName()).log(Level.SEVERE, null, ex);
         }
         mainController controller = new mainController();
-        controller.startGUI();*/
-
+        controller.startGUI();
+         */
     }
 }

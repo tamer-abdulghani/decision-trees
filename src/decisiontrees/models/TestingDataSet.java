@@ -11,14 +11,18 @@ import java.util.Map;
  *
  * @author Tamer
  */
-public class TestDataSet extends DataSet {
+public class TestingDataSet extends DataSet {
+
+    public TestingDataSet(String name) {
+        super(name);
+    }
 
     public float assessingQualityOfTree(SingleCharacteristicTree tree) {
         float correctAnswers = 0;
         float wrongAnswers = 0;
 
         for (Row r : this.getRows()) {
-            Value actualValue = r.getRowTargetValue();
+            Value actualValue = r.getValuesMap().get(tree.getTarget());
             for (Map.Entry<Characteristic, Value> el : r.getValuesMap().entrySet()) {
 
                 if (el.getKey().equals(tree.getProfile())) {

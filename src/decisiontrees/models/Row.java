@@ -16,7 +16,7 @@ import java.util.Map;
 public class Row {
 
     private int rowId;
-    private HashMap<Characteristic, Value> valuesMap;
+    private Map<Characteristic, Value> valuesMap;
 
     public Row(int rowId) {
         this.rowId = rowId;
@@ -40,7 +40,7 @@ public class Row {
     /**
      * @return the valuesMap
      */
-    public HashMap<Characteristic, Value> getValuesMap() {
+    public Map<Characteristic, Value> getValuesMap() {
         return valuesMap;
     }
 
@@ -69,16 +69,4 @@ public class Row {
             }
         }
     }
-
-    public Value getRowTargetValue() {
-        for (Map.Entry<Characteristic, Value> entry : valuesMap.entrySet()) {
-            Characteristic key = entry.getKey();
-            Value value = entry.getValue();
-            if (key.getName().toLowerCase().equals("survived")) {
-                return value;
-            }
-        }
-        return null;
-    }
-
 }

@@ -8,13 +8,9 @@ package decisiontrees.models;
 import decisiontrees.helpers.ValuePair;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -24,7 +20,7 @@ public class SingleCharacteristicTree {
 
     private Characteristic profile;
     private Characteristic target;
-    private HashMap<Value, Value> profileTargetMap;
+    private Map<Value, Value> profileTargetMap;
 
     /**
      * This constructor will build a decision tree related to only one
@@ -34,77 +30,28 @@ public class SingleCharacteristicTree {
      * tree
      * @param target specific characteristic to be the target class of the tree,
      * for example: @@survived class
-     * @param values list of all rows representing the dataset values.
      *
      */
-    public SingleCharacteristicTree(Characteristic profile, Characteristic target, ArrayList<Row> values) {
+    public SingleCharacteristicTree(Characteristic profile, Characteristic target) {
         this.profile = profile;
         this.target = target;
         this.profileTargetMap = new HashMap<>();
+    }
 
-        // helper hashmap which contains the value of profile and coresponding target value with the count number
-        HashMap<Value, HashMap<Value, Integer>> list = new HashMap<>();
-        /*
-        3.0->false:372
-        3.0->true:119
-        1.0->false:80
-        1.0->true:134
-        2.0->false:97
-        2.0->true:87
-         */
-        // helper list pairs list contains two charecteristics values, the profile and the target
-        ArrayList<ValuePair> pairsList = new ArrayList<>();
-        for (Row r : values) {
-            Value profileValue = r.getValuesMap().get(profile);
-            Value targetValue = r.getValuesMap().get(target);
-            pairsList.add(new ValuePair(profileValue, targetValue));
+    /**
+     * This method is for querying the tree for getting target value for a
+     * specific profile value
+     *
+     * @param profileValue the value of profile characteristic
+     * @return the value of the target characteristic
+     */
+    public Value getTargetValue(Value profileValue) {
+        if (this.getProfileTargetMap().containsKey(profileValue)) {
+            return this.getProfileTargetMap().get(profileValue);
         }
 
-        /**
-         * Get the distinct values from the profile, for example: (male, female)
-         * Or (1,2,3)
-         */
-        List<Value> uniqueProfileValues = pairsList.stream().map(x -> x.getSource()).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
-
-        /**
-         * for each profile value (pclass 1, 2, or 3), get the count of people
-         * survived or died (1 or 0)
-         */
-        for (Value a : uniqueProfileValues) {
-            HashMap<Value, Integer> targetCountList = new HashMap<>();
-            for (ValuePair el : pairsList) {
-                if (el.getSource().equals(a)) {
-                    if (targetCountList.containsKey(el.target)) {
-                        targetCountList.replace(el.target, targetCountList.get(el.target) + 1);
-                    } else {
-                        targetCountList.put(el.target, 1);
-                    }
-                }
-            }
-
-            /*
-            for (Map.Entry<Value, Integer> el : targetCountList.entrySet()) {
-                System.out.println("" + a + "->" + el.getKey() + ":" + el.getValue());
-            }
-             */
-            list.put(a, targetCountList);
-        }
-
-        for (Map.Entry<Value, HashMap<Value, Integer>> ele : list.entrySet()) {
-
-            this.profileTargetMap.put(
-                    ele.getKey(),
-                    ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getKey()
-            );
-
-            // Means from the list that we build (profile , (target,count) ), give me the maximum value correspnd to specific target
-            // System.out.println(ele.getKey() + ":" + ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getValue());
-        }
-        /*
-        for (Map.Entry<Value, Value> a : this.profileTargetMap.entrySet()) {
-            System.out.println(a.getKey() + " -> " + a.getValue());
-        }
-         */
+        // This means that the value from Testing Dataset not exists in our decision tree, then return random guess from possible target values (Survived: 1 or 0)
+        return this.getTarget().getPossibleValues().get(new Random().nextInt(1) + 1);
     }
 
     @Override
@@ -120,26 +67,17 @@ public class SingleCharacteristicTree {
 
     }
 
-    public Value getTargetValue(Value value) {
-        if (this.getProfileTargetMap().containsKey(value)) {
-            return this.getProfileTargetMap().get(value);
-        }
-
-        // This means that the value from Testing Dataset not exists in our decision tree, then return random guess from possible target values (Survived: 1 or 0)
-        return this.getTarget().getPossibleValues().get(new Random().nextInt(1) + 1);
-    }
-
     /**
      * @return the profileTargetMap
      */
-    public HashMap<Value, Value> getProfileTargetMap() {
+    public Map<Value, Value> getProfileTargetMap() {
         return profileTargetMap;
     }
 
     /**
      * @param profileTargetMap the profileTargetMap to set
      */
-    public void setProfileTargetMap(HashMap<Value, Value> profileTargetMap) {
+    public void setProfileTargetMap(Map<Value, Value> profileTargetMap) {
         this.profileTargetMap = profileTargetMap;
     }
 

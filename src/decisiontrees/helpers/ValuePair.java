@@ -13,15 +13,39 @@ import decisiontrees.models.Value;
  */
 public class ValuePair {
 
-    public Value source;
-    public Value target;
+    private Value profile;
+    private Value target;
 
     public ValuePair(Value profileValue, Value targetValue) {
-        this.source = profileValue;
+        this.profile = profileValue;
         this.target = targetValue;
     }
 
-    public Value getSource() {
-        return this.source;
+    /**
+     * @return the target
+     */
+    public Value getTarget() {
+        return target;
+    }
+
+    /**
+     * @param target the target to set
+     */
+    public void setTarget(Value target) {
+        this.target = target;
+    }
+
+    /**
+     * @return the profile
+     */
+    public Value getProfile() {
+        return profile;
+    }
+
+    /**
+     * @param profile the profile to set
+     */
+    public void setProfile(Value profile) {
+        this.profile = profile;
     }
 }
