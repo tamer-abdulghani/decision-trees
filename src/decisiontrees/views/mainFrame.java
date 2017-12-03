@@ -648,6 +648,9 @@ public class mainFrame extends javax.swing.JFrame {
         jTextArea4.setText(result);
     }
 
+    /**
+     * This method is for displaying the Best Decision Tree 
+     */
     public void displayBestTree(SingleCharacteristicTree bestTree, float MaxPropotionCorrectAnswers) {
         String result = "Best Decision Tree is: \n \n";
         result += bestTree.getProfile().getName() + "\n";
