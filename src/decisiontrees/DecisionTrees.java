@@ -8,6 +8,7 @@ package decisiontrees;
 import decisiontrees.controllers.mainController;
 import decisiontrees.models.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
@@ -27,7 +28,7 @@ public class DecisionTrees {
         /**
          * Specifying our characteristic input
          */
-        ArrayList<String> charalist = new ArrayList<String>();
+        List<String> charalist = new ArrayList<String>();
         charalist.add("Parch");
         charalist.add("Pclass");
         charalist.add("Sex");
@@ -50,7 +51,7 @@ public class DecisionTrees {
          * Generating All Possible Trees
          */
         Characteristic target = dataset.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
-        ArrayList<SingleCharacteristicTree> trees = dataset.generateAllPossibleTrees(target);
+        List<SingleCharacteristicTree> trees = dataset.generateAllPossibleTrees(target);
         String result = "";
 
         for (SingleCharacteristicTree tree : trees) {
@@ -76,7 +77,7 @@ public class DecisionTrees {
 
             System.out.println(result);
         }
-        /*
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
@@ -90,6 +91,6 @@ public class DecisionTrees {
         }
         mainController controller = new mainController();
         controller.startGUI();
-         */
+
     }
 }

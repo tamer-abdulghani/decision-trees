@@ -5,13 +5,17 @@
  */
 package decisiontrees.models;
 
+import decisiontrees.helpers.WekaHelperModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -90,18 +94,19 @@ public class DataSet {
         2.0->false:97
              true:87
          */
-        Map<Value, Map<Value, Integer>> list = new HashMap<>();
+        Map<Value, Map<Value, Integer>> map = new HashMap<>();
         for (Row r : this.rows) {
             Value profileValue = r.getValuesMap().get(profile);
             Value targetValue = r.getValuesMap().get(target);
 
-            if (!list.containsKey(profileValue)) {
-                list.put(profileValue, new HashMap<>());
+            if (!map.containsKey(profileValue)) {
+                map.put(profileValue, new HashMap<>());
             }
-            if (list.get(profileValue).containsKey(targetValue)) {
-                list.get(profileValue).replace(targetValue, list.get(profileValue).get(targetValue) + 1);
+            if (map.get(profileValue).containsKey(targetValue)) {
+                int oldCount = map.get(profileValue).get(targetValue);
+                map.get(profileValue).replace(targetValue, oldCount + 1);
             } else {
-                list.get(profileValue).put(targetValue, 1);
+                map.get(profileValue).put(targetValue, 1);
             }
 
         }
@@ -113,10 +118,10 @@ public class DataSet {
             }
         }
          */
-        Map<Value, Value> map = new HashMap<>();
-        for (Map.Entry<Value, Map<Value, Integer>> ele : list.entrySet()) {
+        Map<Value, Value> mapProfileTarget = new HashMap<>();
+        for (Map.Entry<Value, Map<Value, Integer>> ele : map.entrySet()) {
 
-            map.put(
+            mapProfileTarget.put(
                     ele.getKey(),
                     ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getKey()
             );
@@ -124,7 +129,7 @@ public class DataSet {
             // Means from the list that we build (profile , (target,count) ), give me the maximum value correspnd to specific target
             // System.out.println(ele.getKey() + ":" + ele.getValue().entrySet().stream().max((x, y) -> x.getValue() > y.getValue() ? 1 : -1).get().getValue());
         }
-        tree.setProfileTargetMap(map);
+        tree.setProfileTargetMap(mapProfileTarget);
 
         return tree;
     }
@@ -137,8 +142,8 @@ public class DataSet {
      * "Survived").
      * @return Array List of SingleCharacteristicTree Objects
      */
-    public ArrayList<SingleCharacteristicTree> generateAllPossibleTrees(Characteristic target) {
-        ArrayList<SingleCharacteristicTree> allTreesList = new ArrayList<>();
+    public List<SingleCharacteristicTree> generateAllPossibleTrees(Characteristic target) {
+        List<SingleCharacteristicTree> allTreesList = new ArrayList<>();
 
         List<Characteristic> listCategoricalCharas = this.charas
                 .stream()
@@ -161,7 +166,7 @@ public class DataSet {
     /**
      * @return C4.5 Decision Tree through J48 Weka Classifier Object.
      */
-    public J48 createDecisionTreeC45() throws FileNotFoundException, IOException, Exception {
+    public WekaHelperModel createDecisionTreeC45() throws FileNotFoundException, IOException, Exception {
 
         FastVector attributesList = new FastVector(4);
         int classIndex = -1;
@@ -189,6 +194,9 @@ public class DataSet {
                 System.out.println("" + a.getKey().getName().toString());
                 Attribute a1 = (Attribute) attributesList.stream().filter(x -> ((Attribute) x).name().toLowerCase().equals(a.getKey().getName().toLowerCase())).findFirst().get();
 
+                /*
+                *   Set value of the Attribute (for example: 'Sex') and the Value of this row (for example: 'male')
+                 */
                 instance.setValue(a1, a.getValue().toString());
             }
             trainDataSet.add(instance);
@@ -196,7 +204,7 @@ public class DataSet {
 
         J48 cls = new J48();
         cls.buildClassifier(trainDataSet);
-        return cls;
+        return new WekaHelperModel(trainDataSet, cls);
     }
 
     /**
@@ -239,5 +247,19 @@ public class DataSet {
      */
     public void setRows(List<Row> rows) {
         this.rows = rows;
+    }
+
+    public String evaluateWekaModel(WekaHelperModel wekaModel, Instances testDataSet) {
+        Evaluation eTest = null;
+        try {
+
+            eTest = new Evaluation(wekaModel.getTrainDataSet());
+            eTest.evaluateModel(wekaModel.getClassifier(), testDataSet);
+            return eTest.toSummaryString();
+
+        } catch (Exception ex) {
+            Logger.getLogger(DataSet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

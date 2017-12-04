@@ -5,6 +5,7 @@
  */
 package decisiontrees.controllers;
 
+import decisiontrees.helpers.WekaHelperModel;
 import decisiontrees.models.DAO;
 import decisiontrees.models.SingleCharacteristicTree;
 import decisiontrees.models.Characteristic;
@@ -13,10 +14,12 @@ import decisiontrees.models.TestingDataSet;
 import decisiontrees.views.mainFrame;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.trees.J48;
+import weka.core.Instances;
 
 /**
  *
@@ -28,6 +31,7 @@ public class mainController {
     private DataSet trainingDataSet;
     private TestingDataSet testingDataSet;
     private mainFrame frame;
+    private WekaHelperModel wekaModel;
 
     public mainController() {
         this.frame = new mainFrame(this);
@@ -56,17 +60,16 @@ public class mainController {
     public void buildElementaryTree(Characteristic selectedChara) {
         Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
         SingleCharacteristicTree tree = this.trainingDataSet.createSingleCharacteristicTree(selectedChara, target);
-        this.frame.displaySingleTree(tree);
     }
 
     public void buildAllTrees() {
         Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
-        ArrayList<SingleCharacteristicTree> trees = this.trainingDataSet.generateAllPossibleTrees(target);
+        List<SingleCharacteristicTree> trees = this.trainingDataSet.generateAllPossibleTrees(target);
         this.frame.displayAllTrees(trees);
     }
 
     public void loadTestDataSet() {
-        ArrayList<String> charalist = new ArrayList<String>();
+        List<String> charalist = new ArrayList<String>();
         charalist.add("Parch");
         charalist.add("Pclass");
         charalist.add("Sex");
@@ -88,7 +91,7 @@ public class mainController {
         Map<SingleCharacteristicTree, Float> mapTreePropotion = new HashMap<>();
         Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
 
-        ArrayList<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
+        List<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
 
         for (SingleCharacteristicTree tree : allTrees) {
             mapTreePropotion.put(tree, this.testingDataSet.assessingQualityOfTree(tree));
@@ -100,7 +103,7 @@ public class mainController {
 
     public void bestDecisionTree() {
         Characteristic target = this.trainingDataSet.getCharas().stream().filter(x -> x.getName().toLowerCase().equals("survived")).findFirst().get();
-        ArrayList<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
+        List<SingleCharacteristicTree> allTrees = this.trainingDataSet.generateAllPossibleTrees(target);
         float MaxPropotionCorrectAnswers = 0;
         SingleCharacteristicTree bestTree = null;
 
@@ -117,11 +120,21 @@ public class mainController {
 
     public J48 buildDecisionTreeWithC45() {
         try {
-            return this.trainingDataSet.createDecisionTreeC45();
+            this.wekaModel = this.trainingDataSet.createDecisionTreeC45();
+            return this.wekaModel.getClassifier();
         } catch (Exception ex) {
             Logger.getLogger(mainController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public void evaluateWekaModel() {
+
+        Instances wekaTestDataSet = this.testingDataSet.generateWekaTestingDataSet();
+
+        String result = this.trainingDataSet.evaluateWekaModel(this.wekaModel, wekaTestDataSet);
+
+        this.frame.displayWekaEvaluationResult(result);
     }
 
 }

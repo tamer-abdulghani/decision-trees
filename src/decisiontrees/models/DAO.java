@@ -79,7 +79,7 @@ public class DAO {
      * @return DataSet object contains a list of characteristics and a list of
      * rows.
      */
-    public TestingDataSet extractTestingData(ArrayList<String> charasList, int datasourceId) {
+    public TestingDataSet extractTestingData(List<String> charasList, int datasourceId) {
         TestingDataSet testingSet = new TestingDataSet("Testing Data Set");
 
         /*
@@ -93,6 +93,11 @@ public class DAO {
          */
         List<Row> listOfRows = extractListOfRows(listOfCharas);
         testingSet.setRows(listOfRows);
+
+        /**
+         * Set possible values for each characteristic if it is categorical type
+         */
+        testingSet.updateCharactersticsPossibleValues();
 
         return testingSet;
     }
