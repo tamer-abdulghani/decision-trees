@@ -580,7 +580,7 @@
         </Container>
         <Component class="javax.swing.JButton" name="jButton9">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Evaluate Decision Tree with C4.5"/>
+            <Property name="text" type="java.lang.String" value="Evaluate C4.5 Decision Tree"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton9ActionPerformed"/>

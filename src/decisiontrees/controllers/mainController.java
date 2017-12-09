@@ -11,7 +11,7 @@ import decisiontrees.models.SingleCharacteristicTree;
 import decisiontrees.models.Characteristic;
 import decisiontrees.models.DataSet;
 import decisiontrees.models.TestingDataSet;
-import decisiontrees.views.mainFrame;
+import decisiontrees.views.MainFrame;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,11 +30,11 @@ public class mainController {
     private DAO database;
     private DataSet trainingDataSet;
     private TestingDataSet testingDataSet;
-    private mainFrame frame;
+    private MainFrame frame;
     private WekaHelperModel wekaModel;
 
     public mainController() {
-        this.frame = new mainFrame(this);
+        this.frame = new MainFrame(this);
         this.database = new DAO();
 
     }

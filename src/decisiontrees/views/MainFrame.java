@@ -34,14 +34,14 @@ import weka.gui.treevisualizer.TreeVisualizer;
  *
  * @author Tamer
  */
-public class mainFrame extends javax.swing.JFrame {
+public class MainFrame extends javax.swing.JFrame {
 
     mainController controller;
 
     /**
      * @param c its the main controller Creates new form mainFrame
      */
-    public mainFrame(mainController c) {
+    public MainFrame(mainController c) {
         this.controller = c;
         initComponents();
 
@@ -343,7 +343,7 @@ public class mainFrame extends javax.swing.JFrame {
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        jButton9.setText("Evaluate Decision Tree with C4.5");
+        jButton9.setText("Evaluate C4.5 Decision Tree");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton9ActionPerformed(evt);
@@ -499,7 +499,7 @@ public class mainFrame extends javax.swing.JFrame {
                     jPanel9.validate();
                     jButton9.setEnabled(true);
                 } catch (Exception ex) {
-                    Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 return null;
 
