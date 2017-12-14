@@ -1,10 +1,10 @@
 # Decision Trees
 This project build a simple decision trees from Titanic Dataset. It also contains an implementation of Weka Api.
 You can find here: 
-•	Main classes needed to represent the dataset.
-•	Connecting the database and extracting the dataset.
-•	Methods to build decision tree with one characteristic. 
-•	Integrating Weka C4.5 algorithms for building decision tree with multi-characteristics. 
+-	Main classes needed to represent the dataset.
+-	Connecting the database and extracting the dataset.
+-	Methods to build decision tree with one characteristic. 
+-	Integrating Weka C4.5 algorithms for building decision tree with multi-characteristics. 
 
 # Platform & Technologies Used 
 -	Java 8 as a programming language on NetBeans 8.2 platform. 
